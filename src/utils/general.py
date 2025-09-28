@@ -1,3 +1,6 @@
+from torchvision import transforms
+from PIL import Image
+
 def compute_accuracy(outputs, labels, topk=(1,5)):
     """Compute Top-k accuracy"""
     maxk = max(topk)
@@ -11,18 +14,21 @@ def compute_accuracy(outputs, labels, topk=(1,5)):
     return res  # [top1, top5]
 
 def compute_batch_metrics(model, inputs, labels, criterion, device):
-    """
-    Performs a forward pass and computes loss and top-1/top-5 accuracy.
-
-    Returns:
-        loss: torch scalar
-        top1: float (%)
-        top5: float (%)
-        preds: torch.Tensor (predicted top-1 class indices)
-    """
     inputs, labels = inputs.to(device), labels.to(device)
     outputs = model(inputs)
     loss = criterion(outputs, labels)
     top1, top5 = compute_accuracy(outputs, labels)
     _, preds = outputs.topk(1, dim=1)
     return loss, top1, top5, preds
+
+def preprocess_image(image_path):
+    """Load and preprocess a single image for model prediction."""
+    transform = transforms.Compose([
+        transforms.Resize((256, 256)),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225])
+    ])
+    image = Image.open(image_path).convert("RGB")
+    return transform(image).unsqueeze(0)  # add batch dimension
