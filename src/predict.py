@@ -1,9 +1,10 @@
 import os
 import torch
-from models import load_resnet_model
 import argparse
-import config
-from utils import preprocess_image
+
+from src.models import load_resnet_model
+from src import config
+from src.utils import preprocess_image
 
 
 def load_class_names(train_dir):
@@ -11,9 +12,6 @@ def load_class_names(train_dir):
     from torchvision.datasets import ImageFolder
     dataset = ImageFolder(train_dir)
     return dataset.classes
-
-
-
 
 
 def predict(model, image_tensor, class_names, device="cuda", topk=5):

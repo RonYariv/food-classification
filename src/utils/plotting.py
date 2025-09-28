@@ -2,11 +2,7 @@ import matplotlib.pyplot as plt
 import os
 import pandas as pd
 
-import sys
-# Add the src folder to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-import config
+from src import config
 
 
 def plot_metrics_table(df_metrics: pd.DataFrame):

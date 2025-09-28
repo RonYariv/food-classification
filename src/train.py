@@ -5,10 +5,10 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 
-from data_loaders import get_dataloaders
-from models import load_resnet_model
-from utils import compute_accuracy, compute_batch_metrics, plot_training_curves
-import config
+from src.data_loaders import get_dataloaders
+from src.models import load_resnet_model
+from src.utils import compute_accuracy, compute_batch_metrics, plot_training_curves
+from src import config
 
 
 def train_one_epoch(model, loader, criterion, optimizer, device, epoch, writer):
