@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import os
 import pandas as pd
 import numpy as np
@@ -9,8 +10,14 @@ from src import config
 def plot_top_confusions(cm: np.ndarray, class_names: list, top_k: int = 20):
     """
     Plot the top-k confusions from a confusion matrix.
+    Each bar shows the number of times a true class was confused with a predicted class.
     """
-    # Copy and zero out diagonal so we only consider misclassifications
+    import matplotlib.pyplot as plt
+    import numpy as np
+    import os
+    from src import config
+
+    # Copy and zero out diagonal (we only want misclassifications)
     cm = cm.copy()
     np.fill_diagonal(cm, 0)
 
@@ -22,7 +29,7 @@ def plot_top_confusions(cm: np.ndarray, class_names: list, top_k: int = 20):
             if cm[i, j] > 0:
                 confusions.append((class_names[i], class_names[j], cm[i, j]))
 
-    # Sort confusions by count descending and take top_k
+    # Sort by count descending and take top_k
     confusions.sort(key=lambda x: x[2], reverse=True)
     confusions = confusions[:top_k]
 
@@ -36,7 +43,7 @@ def plot_top_confusions(cm: np.ndarray, class_names: list, top_k: int = 20):
     # Plot
     plt.figure(figsize=(10, 6))
     cmap = plt.get_cmap("tab20")
-    colors = [cmap(i) for i in range(cmap.N)]  # get all discrete colors
+    colors = [cmap(i) for i in range(cmap.N)]  # get discrete colors
 
     # Create horizontal bars
     for i, count in enumerate(counts):
@@ -47,8 +54,12 @@ def plot_top_confusions(cm: np.ndarray, class_names: list, top_k: int = 20):
     plt.xlabel("Count")
     plt.title(f"Top {len(confusions)} Confusions")
     plt.gca().invert_yaxis()  # highest confusion on top
-    plt.tight_layout()
 
+    # Force x-axis to show only integer ticks
+    plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+
+    plt.tight_layout()
+    os.makedirs(config.REPORTS_DIR, exist_ok=True)
     plt.savefig(os.path.join(config.REPORTS_DIR, "confusion_matrix.png"))
     plt.close()
 
