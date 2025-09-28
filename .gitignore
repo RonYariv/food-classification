@@ -3,8 +3,6 @@ inference_images
 
 # Large datasets
 datasets/*
-# But keep this file
-!datasets/README.md
 
 # Logs
 runs
