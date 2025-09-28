@@ -1,2 +1,2 @@
 from .general import compute_accuracy, compute_batch_metrics
-from .plotting import plot_per_class_accuracy, plot_training_curves
+from .plotting import plot_metrics_table, plot_training_curves

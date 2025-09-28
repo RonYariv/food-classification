@@ -1,18 +1,34 @@
 import matplotlib.pyplot as plt
 import os
+import pandas as pd
+
+import sys
+# Add the src folder to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import config
 
 
-def plot_per_class_accuracy(class_acc, class_names):
-    plt.figure(figsize=(20,6))
-    plt.bar(range(len(class_names)), class_acc)
-    plt.xticks(range(len(class_names)), class_names, rotation=90)
-    plt.ylabel("Accuracy (%)")
-    plt.title("Per-Class Accuracy")
+def plot_metrics_table(df_metrics: pd.DataFrame):
+    """
+    Plot a table of metrics (accuracy, precision, recall, F1).
+    """
+    fig, ax = plt.subplots(figsize=(12, max(6, int(len(df_metrics)*0.3))))
+    ax.axis("off")
+
+    table = ax.table(
+        cellText=df_metrics.round(3).values,
+        colLabels=df_metrics.columns,
+        cellLoc="center",
+        loc="center"
+    )
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1, 1.5)
     plt.tight_layout()
-    plt.savefig(os.path.join(config.REPORTS_DIR, "per_class_accuracy.png"))
+    plt.savefig(f"{config.REPORTS_DIR}/metrics_table.png")
     plt.close()
-    print(f"Saved per-class accuracy plot: {config.REPORTS_DIR}")
+    print(f"Saved metrics table plot to {config.REPORTS_DIR}")
 
 def plot_training_curves(train_losses, val_losses, train_accs, val_accs):
     os.makedirs(config.REPORTS_DIR, exist_ok=True)
