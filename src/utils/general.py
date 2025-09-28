@@ -37,10 +37,7 @@ def get_transform():
 
 def preprocess_image(image_path):
     """Load and preprocess a single image for model prediction."""
-    transform = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-    ])
+    transform = get_transform()
     image = Image.open(image_path).convert("RGB")
     return transform(image).unsqueeze(0)  # add batch dimension
 

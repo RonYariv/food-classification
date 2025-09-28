@@ -2,12 +2,13 @@ import os
 import shutil
 import random
 from tqdm import tqdm
+from src import config
 
 # ---------------------------
 # CONFIGURATION
 # ---------------------------
-SOURCE_DIR = "datasets/food-101-split"  # Original folder with all class subfolders
-DEST_DIR = "datasets/food-101/images"    # Destination folder for train/val/test
+SOURCE_DIR = config.FOOD101_RAW_DIR  # Original folder with all class subfolders
+DEST_DIR = config.FOOD101_SPLIT_DIR   # Destination folder for train/val/test
 TRAIN_RATIO = 0.8
 VAL_RATIO = 0.1
 TEST_RATIO = 0.1

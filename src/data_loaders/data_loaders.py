@@ -1,13 +1,11 @@
 import os
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
+from src.utils import get_transform
 
 
 def get_dataloaders(data_dir, batch_size=32, num_workers=4):
-    transform = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-    ])
+    transform = get_transform()
 
     train_dataset = datasets.ImageFolder(root=os.path.join(data_dir, "train"), transform=transform)
     val_dataset = datasets.ImageFolder(root=os.path.join(data_dir, "val"), transform=transform)
