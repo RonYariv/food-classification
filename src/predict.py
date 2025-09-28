@@ -75,6 +75,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Predict multiple images using trained model")
     parser.add_argument("--checkpoint", type=str, default=f"{config.CHECKPOINT_DIR}/best_model.pth", help="Path to model checkpoint")
+    parser.add_argument("--image-dir",type=str,default="inference_images", help="Path to directory containing images")
     parser.add_argument("--topk", type=int, default=5, help="Top-K predictions to show")
 
     args = parser.parse_args()

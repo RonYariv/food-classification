@@ -1,5 +1,5 @@
-# Local testing data
-data
+# Local testing inference images
+inference_images
 
 # Large datasets
 datasets/*
