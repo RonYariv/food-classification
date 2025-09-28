@@ -79,7 +79,7 @@ def main(args):
     train_accs, val_accs = [], []
 
     for epoch in range(args.epochs):
-        epoch =+1
+        epoch+=1
         print(f"\n--- Epoch {epoch}/{args.epochs} ---")
         train_loss, train_acc = train_one_epoch(model, train_loader, criterion, optimizer, device, epoch, writer)
         val_loss, val_acc = validate(model, val_loader, criterion, device, epoch, writer)
