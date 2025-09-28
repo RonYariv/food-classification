@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 
-from datasets import get_dataloaders
+from data_loaders import get_dataloaders
 from models import build_resnet50
 from utils import compute_accuracy, forward_step
 
@@ -60,7 +60,7 @@ def main(args):
     writer = SummaryWriter(log_dir=args.log_dir)
 
     # Load dataloaders
-    train_loader, val_loader, num_classes, class_names = get_dataloaders(
+    train_loader, val_loader, test_loader, num_classes, class_names = get_dataloaders(
         args.data_dir, batch_size=args.batch_size, num_workers=args.num_workers
     )
 
@@ -83,14 +83,21 @@ def main(args):
             best_acc = val_acc
             ckpt_path = os.path.join(args.checkpoint_dir, "best_model.pth")
             torch.save(model.state_dict(), ckpt_path)
-            print(f"✅ Saved new best model at {ckpt_path} (Val Acc: {best_acc:.2f}%)")
+            print(f"Saved new best model at {ckpt_path} (Val Acc: {best_acc:.2f}%)")
+
+    # --- Final evaluation on TEST set using the best model ---
+    print("\n=== Final Evaluation on Test Set ===")
+    model.load_state_dict(torch.load(os.path.join(args.checkpoint_dir, "best_model.pth")))
+    test_loss, test_acc = validate(model, test_loader, criterion, device, args.epochs, writer)
+    print(f"Test Accuracy: {test_acc:.2f}%")
 
     writer.close()
 
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train Food-101 Classifier")
-    parser.add_argument("--data_dir", type=str, default="dataset/food-101/images", help="Path to dataset")
+    parser.add_argument("--data_dir", type=str, default="data_loaders/food-101_split", help="Path to dataset")
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--lr", type=float, default=1e-4)
