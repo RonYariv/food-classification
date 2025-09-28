@@ -2,11 +2,11 @@ import argparse
 import torch
 import torch.nn as nn
 import pandas as pd
-from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
 
 from src.data_loaders import get_dataloaders
 from src.models import load_resnet_model
-from src.utils import plot_metrics_table
+from src.utils import plot_metrics_table, plot_top_confusions
 from src import config
 
 def evaluate(model, loader, criterion, device, class_names=None, save_csv="metrics.csv"):
@@ -63,6 +63,10 @@ def evaluate(model, loader, criterion, device, class_names=None, save_csv="metri
 
     # Plot metrics table
     plot_metrics_table(df_metrics)
+
+    # Plot confusion matrix
+    cm = confusion_matrix(all_labels, all_preds, labels=range(len(class_names)))
+    plot_top_confusions(cm, class_names, top_k=20)
 
     # Overall accuracy
     overall_acc = sum([p == l for p, l in zip(all_preds, all_labels)]) / len(all_labels) * 100

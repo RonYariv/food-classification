@@ -1,8 +1,58 @@
 import matplotlib.pyplot as plt
 import os
 import pandas as pd
+import numpy as np
 
 from src import config
+
+
+def plot_top_confusions(cm: np.ndarray, class_names: list, top_k: int = 20):
+    """
+    Plot the top-k confusions from a confusion matrix.
+    """
+    # Copy and zero out diagonal so we only consider misclassifications
+    cm = cm.copy()
+    np.fill_diagonal(cm, 0)
+
+    # Collect all confusions: (true_class, predicted_class, count)
+    confusions = []
+    num_classes = len(class_names)
+    for i in range(num_classes):
+        for j in range(num_classes):
+            if cm[i, j] > 0:
+                confusions.append((class_names[i], class_names[j], cm[i, j]))
+
+    # Sort confusions by count descending and take top_k
+    confusions.sort(key=lambda x: x[2], reverse=True)
+    confusions = confusions[:top_k]
+
+    if not confusions:
+        print("No confusions to display!")
+        return
+
+    # Unpack lists
+    true_labels, pred_labels, counts = zip(*confusions)
+
+    # Plot
+    plt.figure(figsize=(10, 6))
+    cmap = plt.get_cmap("tab20")
+    colors = [cmap(i) for i in range(cmap.N)]  # get all discrete colors
+
+    # Create horizontal bars
+    for i, count in enumerate(counts):
+        plt.barh(i, count, color=colors[i % len(colors)])
+
+    # Set y-axis labels as "True → Predicted"
+    plt.yticks(range(len(confusions)), [f"{t} → {p}" for t, p in zip(true_labels, pred_labels)])
+    plt.xlabel("Count")
+    plt.title(f"Top {len(confusions)} Confusions")
+    plt.gca().invert_yaxis()  # highest confusion on top
+    plt.tight_layout()
+
+    plt.savefig(os.path.join(config.REPORTS_DIR, "confusion_matrix.png"))
+    plt.close()
+
+    print(f"Saved confusion plot to {config.REPORTS_DIR}")
 
 
 def plot_metrics_table(df_metrics: pd.DataFrame):
