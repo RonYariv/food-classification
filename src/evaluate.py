@@ -79,7 +79,7 @@ def main(args):
 
     # Load test dataloader
     _, _, test_loader, num_classes, class_names = get_dataloaders(
-        config.FOOD101_SPLIT_DIR, batch_size=args.batch_size, num_workers=args.num_workers
+        config.SPLIT_DATA_DIR, batch_size=args.batch_size, num_workers=args.num_workers
     )
 
     # Load model

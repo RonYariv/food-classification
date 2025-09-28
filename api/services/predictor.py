@@ -4,7 +4,7 @@ from src.utils import preprocess_image, get_class_names
 from src import config
 
 # Load model
-class_names = get_class_names(config.FOOD101_RAW_DIR)
+class_names = get_class_names()
 NUM_CLASSES = len(class_names)
 MODEL_PATH = f"{config.CHECKPOINT_DIR}/best_model.pth"
 model = load_resnet_model(config.RESNET_DEPTH, num_classes=NUM_CLASSES, checkpoint_path=MODEL_PATH)

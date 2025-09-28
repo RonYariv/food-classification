@@ -25,7 +25,7 @@ def main(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Load class names
-    class_names = get_class_names(config.FOOD101_RAW_DIR)
+    class_names = get_class_names()
 
     # Load model
     num_classes = len(class_names)

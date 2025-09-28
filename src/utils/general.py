@@ -1,6 +1,7 @@
 from torchvision import transforms
 from PIL import Image
 import os
+from src import config
 
 def compute_accuracy(outputs, labels, topk=(1,5)):
     """Compute Top-k accuracy"""
@@ -42,12 +43,13 @@ def preprocess_image(image_path):
     return transform(image).unsqueeze(0)  # add batch dimension
 
 
-def get_class_names(data_dir):
+def get_class_names():
+    classes_dir = os.path.join(config.SPLIT_DATA_DIR, "train")
     class_names = sorted(
         [
             folder_name
-            for folder_name in os.listdir(data_dir)
-            if os.path.isdir(os.path.join(data_dir, folder_name))
+            for folder_name in os.listdir(classes_dir)
+            if os.path.isdir(os.path.join(classes_dir, folder_name))
         ]
     )
     return class_names

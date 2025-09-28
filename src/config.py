@@ -1,6 +1,5 @@
 # Dataset
-FOOD101_SPLIT_DIR = "datasets/food-101_split"
-FOOD101_RAW_DIR = "datasets/food-101/images"
+SPLIT_DATA_DIR = "datasets/split"
 
 # Checkpoints & logs
 CHECKPOINT_DIR = "checkpoints"
