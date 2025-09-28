@@ -3,6 +3,9 @@ inference_images
 
 # Large datasets
 datasets/*
+# But keep the .gitkeep files
+!datasets/raw/.gitkeep
+!datasets/split/.gitkeep
 
 # Logs
 runs
