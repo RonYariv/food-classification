@@ -1,3 +1,14 @@
+# Local testing data
 data
+
+# Large datasets
 datasets
+
+# Logs
 runs
+
+# Ignore everything inside checkpoints
+checkpoints/*
+
+# But keep this file
+!checkpoints/put_models_here.txt
