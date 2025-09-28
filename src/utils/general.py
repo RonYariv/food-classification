@@ -10,7 +10,7 @@ def compute_accuracy(outputs, labels, topk=(1,5)):
         res.append(correct[:k].reshape(-1).float().sum(0).item() / batch_size * 100.0)
     return res  # [top1, top5]
 
-def forward_step(model, inputs, labels, criterion, device):
+def compute_batch_metrics(model, inputs, labels, criterion, device):
     """
     Performs a forward pass and computes loss and top-1/top-5 accuracy.
 

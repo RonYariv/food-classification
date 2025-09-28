@@ -7,7 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from data_loaders import get_dataloaders
 from models import load_resnet_model
-from utils import compute_accuracy, forward_step, plot_training_curves
+from utils import compute_accuracy, compute_batch_metrics, plot_training_curves
 import config
 
 
@@ -45,7 +45,7 @@ def validate(model, loader, criterion, device, epoch, writer):
 
     with torch.no_grad():
         for inputs, labels in loader:
-            loss, top1, top5, preds = forward_step(model, inputs, labels, criterion, device)
+            loss, top1, top5, preds = compute_batch_metrics(model, inputs, labels, criterion, device)
             correct += (top1 / 100.0) * labels.size(0)
             total += labels.size(0)
 

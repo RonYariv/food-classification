@@ -5,7 +5,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from data_loaders import get_dataloaders
 from models import load_resnet_model
-from utils import plot_per_class_accuracy, forward_step
+from utils import plot_per_class_accuracy, compute_batch_metrics
 
 
 def evaluate(model, loader, criterion, device, class_names=None, save_plot_path="per_class_accuracy.png"):
@@ -25,7 +25,7 @@ def evaluate(model, loader, criterion, device, class_names=None, save_plot_path=
             inputs, labels = inputs.to(device), labels.to(device)
 
             # forward_step handles forward pass + metrics
-            loss, top1, top5, preds = forward_step(model, inputs, labels, criterion, device)
+            loss, top1, top5, preds = compute_batch_metrics(model, inputs, labels, criterion, device)
 
             running_loss += loss.item()
             correct_top1 += (top1 / 100.0) * labels.size(0)
@@ -49,7 +49,7 @@ def evaluate(model, loader, criterion, device, class_names=None, save_plot_path=
 
     # Plot per-class accuracy
     if class_names is not None:
-        plot_per_class_accuracy(class_acc, class_names, save_path=save_plot_path)
+        plot_per_class_accuracy(class_acc, class_names)
 
     return val_loss, top1_acc, top5_acc, class_acc
 
