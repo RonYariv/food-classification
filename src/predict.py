@@ -5,6 +5,8 @@ from PIL import Image
 from models import load_resnet_model
 import argparse
 
+import config
+
 def load_class_names(train_dir):
     """Load class names from train folder structure."""
     from torchvision.datasets import ImageFolder
@@ -45,11 +47,11 @@ def main(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Load class names
-    class_names = load_class_names(args.data_dir)
+    class_names = load_class_names(config.FOOD101_RAW_DIR)
 
     # Load model
     num_classes = len(class_names)
-    model = load_resnet_model(depth=args.depth, num_classes=num_classes,
+    model = load_resnet_model(depth=config.RESNET_DEPTH, num_classes=num_classes,
                              checkpoint_path=args.checkpoint, device=device)
 
     # Collect all image paths
@@ -71,12 +73,8 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Predict multiple images using trained Food-101 model")
-    parser.add_argument("--image_dir", type=str, required=True, help="Directory with images to predict")
-    parser.add_argument("--data_dir", type=str, default="dataset/food-101/images",
-                        help="Path to dataset train folder (for class names)")
-    parser.add_argument("--checkpoint", type=str, default="checkpoints/best_model.pth", help="Path to model checkpoint")
-    parser.add_argument("--depth", type=int, default=18, help="ResNet depth")
+    parser = argparse.ArgumentParser(description="Predict multiple images using trained model")
+    parser.add_argument("--checkpoint", type=str, default=f"{config.CHECKPOINT_DIR}/best_model.pth", help="Path to model checkpoint")
     parser.add_argument("--topk", type=int, default=5, help="Top-K predictions to show")
 
     args = parser.parse_args()

@@ -8,6 +8,7 @@ from torch.utils.tensorboard import SummaryWriter
 from data_loaders import get_dataloaders
 from models import load_resnet_model
 from utils import compute_accuracy, forward_step
+import config
 
 def train_one_epoch(model, loader, criterion, optimizer, device, epoch, writer):
     model.train()
@@ -57,11 +58,11 @@ def validate(model, loader, criterion, device, epoch, writer):
 
 def main(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    writer = SummaryWriter(log_dir=args.log_dir)
+    writer = SummaryWriter(log_dir=config.LOG_DIR)
 
     # Load dataloaders
     train_loader, val_loader, test_loader, num_classes, class_names = get_dataloaders(
-        args.data_dir, batch_size=args.batch_size, num_workers=args.num_workers
+        config.FOOD101_SPLIT_DIR, batch_size=args.batch_size, num_workers=args.num_workers
     )
 
     # Load model
@@ -71,7 +72,7 @@ def main(args):
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
     best_acc = 0.0
-    os.makedirs(args.checkpoint_dir, exist_ok=True)
+    os.makedirs(config.CHECKPOINT_DIR, exist_ok=True)
 
     for epoch in range(args.epochs):
         epoch =+1
@@ -82,13 +83,13 @@ def main(args):
         # Save best model
         if val_acc > best_acc:
             best_acc = val_acc
-            ckpt_path = os.path.join(args.checkpoint_dir, "best_model.pth")
+            ckpt_path = os.path.join(config.CHECKPOINT_DIR, "best_model.pth")
             torch.save(model.state_dict(), ckpt_path)
             print(f"Saved new best model at {ckpt_path} (Val Acc: {best_acc:.2f}%)")
 
     # --- Final evaluation on TEST set using the best model ---
     print("\n=== Final Evaluation on Test Set ===")
-    model.load_state_dict(torch.load(os.path.join(args.checkpoint_dir, "best_model.pth")))
+    model.load_state_dict(torch.load(os.path.join(config.CHECKPOINT_DIR, "best_model.pth")))
     test_loss, test_acc = validate(model, test_loader, criterion, device, args.epochs, writer)
     print(f"Test Accuracy: {test_acc:.2f}%")
 
@@ -98,13 +99,10 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train Food-101 Classifier")
-    parser.add_argument("--data_dir", type=str, default="datasets/food-101_split", help="Path to dataset")
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--epochs", type=int, default=5)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--num_workers", type=int, default=8)
-    parser.add_argument("--checkpoint_dir", type=str, default="checkpoints")
-    parser.add_argument("--log_dir", type=str, default="runs")
 
     args = parser.parse_args()
     main(args)

@@ -3,9 +3,8 @@ data
 
 # Large datasets
 datasets/*
-# But keep those files
+# But keep this file
 !datasets/README.md
-!datasets/prepare_dataset.py
 
 # Logs
 runs
