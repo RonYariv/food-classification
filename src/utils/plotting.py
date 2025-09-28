@@ -79,13 +79,16 @@ def plot_metrics_table(df_metrics: pd.DataFrame):
 def plot_training_curves(train_losses, val_losses, train_accs, val_accs):
     os.makedirs(config.REPORTS_DIR, exist_ok=True)
 
+    epochs = list(range(1, len(train_losses) + 1))
+
     # Loss
     plt.figure(figsize=(10, 5))
-    plt.plot(range(1, len(train_losses) + 1), train_losses, label="Train Loss")
-    plt.plot(range(1, len(val_losses) + 1), val_losses, label="Validation Loss")
+    plt.plot(epochs, train_losses, label="Train Loss")
+    plt.plot(epochs, val_losses, label="Validation Loss")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.title("Training & Validation Loss")
+    plt.xticks(epochs)  # set x-axis ticks as natural numbers
     plt.legend()
     plt.grid(True)
     plt.savefig(os.path.join(config.REPORTS_DIR, "loss_curve.png"))
@@ -93,11 +96,12 @@ def plot_training_curves(train_losses, val_losses, train_accs, val_accs):
 
     # Accuracy
     plt.figure(figsize=(10, 5))
-    plt.plot(range(1, len(train_accs) + 1), train_accs, label="Train Accuracy")
-    plt.plot(range(1, len(val_accs) + 1), val_accs, label="Validation Accuracy")
+    plt.plot(epochs, train_accs, label="Train Accuracy")
+    plt.plot(epochs, val_accs, label="Validation Accuracy")
     plt.xlabel("Epoch")
     plt.ylabel("Accuracy (%)")
     plt.title("Training & Validation Accuracy")
+    plt.xticks(epochs)  # set x-axis ticks as natural numbers
     plt.legend()
     plt.grid(True)
     plt.savefig(os.path.join(config.REPORTS_DIR, "accuracy_curve.png"))
