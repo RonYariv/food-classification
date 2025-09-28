@@ -1,5 +1,6 @@
 from torchvision import transforms
 from PIL import Image
+import os
 
 def compute_accuracy(outputs, labels, topk=(1,5)):
     """Compute Top-k accuracy"""
@@ -32,3 +33,13 @@ def preprocess_image(image_path):
     ])
     image = Image.open(image_path).convert("RGB")
     return transform(image).unsqueeze(0)  # add batch dimension
+
+def get_class_names(data_dir):
+    class_names = sorted(
+        [
+            folder_name
+            for folder_name in os.listdir(data_dir)
+            if os.path.isdir(os.path.join(data_dir, folder_name))
+        ]
+    )
+    return class_names

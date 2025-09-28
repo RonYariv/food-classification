@@ -1,29 +1,25 @@
 from fastapi import APIRouter, UploadFile, File
 from fastapi.responses import JSONResponse
-from pathlib import Path
 from api.services import predict_image
+from api.schemas import PredictResponse
 
 router = APIRouter()
 
-@router.post("/predict")
+@router.post("/predict", response_model=PredictResponse)
 async def predict(file: UploadFile = File(...)):
-    """
-    Predict class of uploaded image using the service layer.
-    """
     try:
-        # Save uploaded file temporarily
-        temp_path = Path("temp") / file.filename
-        temp_path.parent.mkdir(exist_ok=True)
-        with open(temp_path, "wb") as f:
+        # Save file temporarily
+        image_path = f"temp_{file.filename}"
+        with open(image_path, "wb") as f:
             f.write(await file.read())
 
-        # Call the service function
-        predicted_class = predict_image(temp_path)
+        class_id, class_name, probability = predict_image(image_path)
 
-        # Clean up
-        temp_path.unlink(missing_ok=True)
-
-        return JSONResponse({"predicted_class": predicted_class})
+        return PredictResponse(
+            class_id=class_id,
+            class_name=class_name,
+            probability=float(probability)
+        )
 
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
