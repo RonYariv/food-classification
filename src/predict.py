@@ -4,37 +4,28 @@ import argparse
 
 from src.models import load_resnet_model
 from src import config
-from src.utils import preprocess_image
+from src.utils import preprocess_image, get_class_names
 
-
-def load_class_names(train_dir):
-    """Load class names from train folder structure."""
-    from torchvision.datasets import ImageFolder
-    dataset = ImageFolder(train_dir)
-    return dataset.classes
-
-
-def predict(model, image_tensor, class_names, device="cuda", topk=5):
-    """Predict the top-k classes for the input image."""
+def predict(model, image_tensor, class_names, device="cuda"):
+    """Predict the top-1 class for the input image."""
     model.eval()
     image_tensor = image_tensor.to(device)
 
     with torch.no_grad():
         outputs = model(image_tensor)
         probs = torch.softmax(outputs, dim=1)
-        top_probs, top_idxs = probs.topk(topk)
-        top_probs = top_probs.cpu().numpy()[0]
-        top_idxs = top_idxs.cpu().numpy()[0]
-        top_classes = [class_names[i] for i in top_idxs]
+        top_idx = probs.argmax(dim=1).item()
+        top_class = class_names[top_idx]
+        top_prob = probs[0, top_idx].item()
 
-    return list(zip(top_classes, top_probs))
+    return top_class, top_prob
 
 
 def main(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Load class names
-    class_names = load_class_names(config.FOOD101_RAW_DIR)
+    class_names = get_class_names(config.FOOD101_RAW_DIR)
 
     # Load model
     num_classes = len(class_names)
@@ -50,20 +41,21 @@ def main(args):
 
     for img_path in image_paths:
         image_tensor = preprocess_image(img_path)
-        preds = predict(model, image_tensor, class_names, device=device, topk=args.topk)
-        # Store result as dict
+        top_class, top_prob = predict(model, image_tensor, class_names, device=device)
         results.append({
             "image": os.path.basename(img_path),
-            "predictions": preds
+            "prediction": top_class,
+            "probability": top_prob
         })
-        print(f"Processed {img_path}: {preds[0][0]} ({preds[0][1] * 100:.2f}%)")
+        print(f"Processed {img_path}: {top_class} ({top_prob * 100:.2f}%)")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Predict multiple images using trained model")
-    parser.add_argument("--checkpoint", type=str, default=f"{config.CHECKPOINT_DIR}/best_model.pth", help="Path to model checkpoint")
-    parser.add_argument("--image-dir",type=str,default="inference_images", help="Path to directory containing images")
-    parser.add_argument("--topk", type=int, default=5, help="Top-K predictions to show")
+    parser.add_argument("--checkpoint", type=str, default=f"{config.CHECKPOINT_DIR}/best_model.pth",
+                        help="Path to model checkpoint")
+    parser.add_argument("--image-dir", type=str, default="inference_images",
+                        help="Path to directory containing images")
 
     args = parser.parse_args()
     main(args)
