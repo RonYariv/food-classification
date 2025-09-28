@@ -7,6 +7,7 @@ import argparse
 
 import config
 
+
 def load_class_names(train_dir):
     """Load class names from train folder structure."""
     from torchvision.datasets import ImageFolder
@@ -52,7 +53,7 @@ def main(args):
     # Load model
     num_classes = len(class_names)
     model = load_resnet_model(depth=config.RESNET_DEPTH, num_classes=num_classes,
-                             checkpoint_path=args.checkpoint, device=device)
+                              checkpoint_path=args.checkpoint, device=device)
 
     # Collect all image paths
     image_paths = [os.path.join(args.image_dir, f) for f in os.listdir(args.image_dir)

@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-
 def compute_accuracy(outputs, labels, topk=(1,5)):
     """Compute Top-k accuracy"""
     maxk = max(topk)
@@ -11,17 +9,6 @@ def compute_accuracy(outputs, labels, topk=(1,5)):
     for k in topk:
         res.append(correct[:k].reshape(-1).float().sum(0).item() / batch_size * 100.0)
     return res  # [top1, top5]
-
-def plot_per_class_accuracy(class_acc, class_names, save_path="per_class_accuracy.png"):
-    plt.figure(figsize=(20,6))
-    plt.bar(range(len(class_names)), class_acc)
-    plt.xticks(range(len(class_names)), class_names, rotation=90)
-    plt.ylabel("Accuracy (%)")
-    plt.title("Per-Class Accuracy")
-    plt.tight_layout()
-    plt.savefig(save_path)
-    plt.close()
-    print(f"Saved per-class accuracy plot: {save_path}")
 
 def forward_step(model, inputs, labels, criterion, device):
     """

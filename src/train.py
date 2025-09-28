@@ -7,8 +7,9 @@ from torch.utils.tensorboard import SummaryWriter
 
 from data_loaders import get_dataloaders
 from models import load_resnet_model
-from utils import compute_accuracy, forward_step
+from utils import compute_accuracy, forward_step, plot_training_curves
 import config
+
 
 def train_one_epoch(model, loader, criterion, optimizer, device, epoch, writer):
     model.train()
@@ -74,11 +75,18 @@ def main(args):
     best_acc = 0.0
     os.makedirs(config.CHECKPOINT_DIR, exist_ok=True)
 
+    train_losses, val_losses = [], []
+    train_accs, val_accs = [], []
+
     for epoch in range(args.epochs):
         epoch =+1
         print(f"\n--- Epoch {epoch}/{args.epochs} ---")
         train_loss, train_acc = train_one_epoch(model, train_loader, criterion, optimizer, device, epoch, writer)
         val_loss, val_acc = validate(model, val_loader, criterion, device, epoch, writer)
+        train_losses.append(train_loss)
+        train_accs.append(train_acc)
+        val_losses.append(val_loss)
+        val_accs.append(val_acc)
 
         # Save best model
         if val_acc > best_acc:
@@ -87,11 +95,13 @@ def main(args):
             torch.save(model.state_dict(), ckpt_path)
             print(f"Saved new best model at {ckpt_path} (Val Acc: {best_acc:.2f}%)")
 
-    # --- Final evaluation on TEST set using the best model ---
+    # Final evaluation on TEST set using the best model ---
     print("\n=== Final Evaluation on Test Set ===")
     model.load_state_dict(torch.load(os.path.join(config.CHECKPOINT_DIR, "best_model.pth")))
     test_loss, test_acc = validate(model, test_loader, criterion, device, args.epochs, writer)
     print(f"Test Accuracy: {test_acc:.2f}%")
+
+    plot_training_curves(train_losses, val_losses, train_accs, val_accs)
 
     writer.close()
 
@@ -100,7 +110,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train Food-101 Classifier")
     parser.add_argument("--batch_size", type=int, default=32)
-    parser.add_argument("--epochs", type=int, default=5)
+    parser.add_argument("--epochs", type=int, default=1)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--num_workers", type=int, default=8)
 
