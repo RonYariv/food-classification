@@ -1,1 +1,1 @@
-from .models import build_resnet50
+from .models import load_resnet_model

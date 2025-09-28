@@ -4,7 +4,7 @@ import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
 
 from data_loaders import get_dataloaders
-from models import build_resnet50
+from models import load_resnet_model
 from utils import plot_per_class_accuracy, forward_step
 
 
@@ -64,7 +64,7 @@ def main(args):
     )
 
     # Load model
-    model = build_resnet50(num_classes, checkpoint_path=args.checkpoint, device=device)
+    model = load_resnet_model(18, num_classes, checkpoint_path=args.checkpoint, device=device)
 
     criterion = nn.CrossEntropyLoss()
     test_loss, top1_acc, top5_acc, class_acc = evaluate(model, test_loader, criterion, device, class_names)
@@ -78,7 +78,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate Food-101 Classifier")
-    parser.add_argument("--data_dir", type=str, default="dataset/food-101/images", help="Path to dataset root (with train/val/test)")
+    parser.add_argument("--data_dir", type=str, default="datasets/food-101_split", help="Path to dataset root (with train/val/test)")
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--checkpoint", type=str, default="checkpoints/best_model.pth", help="Path to model checkpoint")

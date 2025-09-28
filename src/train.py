@@ -6,7 +6,7 @@ import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 
 from data_loaders import get_dataloaders
-from models import build_resnet50
+from models import load_resnet_model
 from utils import compute_accuracy, forward_step
 
 def train_one_epoch(model, loader, criterion, optimizer, device, epoch, writer):
@@ -65,7 +65,7 @@ def main(args):
     )
 
     # Load model
-    model = build_resnet50(num_classes, checkpoint_path=None, device=device)
+    model = load_resnet_model(18, num_classes,checkpoint_path=None, device=device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
@@ -74,7 +74,8 @@ def main(args):
     os.makedirs(args.checkpoint_dir, exist_ok=True)
 
     for epoch in range(args.epochs):
-        print(f"\n--- Epoch {epoch+1}/{args.epochs} ---")
+        epoch =+1
+        print(f"\n--- Epoch {epoch}/{args.epochs} ---")
         train_loss, train_acc = train_one_epoch(model, train_loader, criterion, optimizer, device, epoch, writer)
         val_loss, val_acc = validate(model, val_loader, criterion, device, epoch, writer)
 
@@ -97,11 +98,11 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train Food-101 Classifier")
-    parser.add_argument("--data_dir", type=str, default="data_loaders/food-101_split", help="Path to dataset")
+    parser.add_argument("--data_dir", type=str, default="datasets/food-101_split", help="Path to dataset")
     parser.add_argument("--batch_size", type=int, default=32)
-    parser.add_argument("--epochs", type=int, default=10)
+    parser.add_argument("--epochs", type=int, default=5)
     parser.add_argument("--lr", type=float, default=1e-4)
-    parser.add_argument("--num_workers", type=int, default=4)
+    parser.add_argument("--num_workers", type=int, default=8)
     parser.add_argument("--checkpoint_dir", type=str, default="checkpoints")
     parser.add_argument("--log_dir", type=str, default="runs")
 
