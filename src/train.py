@@ -3,11 +3,10 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
 from torchvision import datasets, transforms, models
 from torch.utils.tensorboard import SummaryWriter
-from torch.utils.data import random_split
-
+from torch.utils.data import DataLoader, Subset
+import numpy as np
 
 def get_data_loaders(data_dir, batch_size, num_workers=4, val_split=0.2):
     """
@@ -22,16 +21,23 @@ def get_data_loaders(data_dir, batch_size, num_workers=4, val_split=0.2):
                              std=[0.229, 0.224, 0.225]),
     ])
 
-    # Load full dataset
     full_dataset = datasets.ImageFolder(data_dir, transform=transform)
     num_classes = len(full_dataset.classes)
 
-    # Compute split lengths
-    val_len = int(len(full_dataset) * val_split)
-    train_len = len(full_dataset) - val_len
+    # Build indices per class
+    targets = np.array([s[1] for s in full_dataset.samples])
+    train_indices = []
+    val_indices = []
 
-    # Random split
-    train_dataset, val_dataset = random_split(full_dataset, [train_len, val_len])
+    for class_idx in range(num_classes):
+        class_indices = np.where(targets == class_idx)[0]
+        np.random.shuffle(class_indices)
+        split = int(len(class_indices) * (1 - val_split))
+        train_indices.extend(class_indices[:split])
+        val_indices.extend(class_indices[split:])
+
+    train_dataset = Subset(full_dataset, train_indices)
+    val_dataset = Subset(full_dataset, val_indices)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
@@ -142,7 +148,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train Food-101 Classifier")
-    parser.add_argument("--data_dir", type=str, default="dataset/food-101", help="Path to dataset")
+    parser.add_argument("--data_dir", type=str, default="dataset/food-101/images", help="Path to dataset")
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--lr", type=float, default=1e-4)
