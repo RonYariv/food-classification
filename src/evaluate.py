@@ -2,7 +2,6 @@ import argparse
 import torch
 import torch.nn as nn
 import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.metrics import precision_score, recall_score, f1_score
 
 from data_loaders import get_dataloaders
@@ -10,7 +9,7 @@ from models import load_resnet_model
 from utils import compute_batch_metrics, plot_metrics_table
 import config
 
-def evaluate(model, loader, criterion, device, class_names=None, save_csv="metrics.csv", save_plot="metrics_table.png"):
+def evaluate(model, loader, criterion, device, class_names=None, save_csv="metrics.csv"):
     """
     Evaluate model on a dataset, return per-class metrics and overall metrics.
     """
@@ -76,7 +75,7 @@ def main(args):
     criterion = nn.CrossEntropyLoss()
     val_loss, overall_acc, df_metrics = evaluate(
         model, test_loader, criterion, device, class_names,
-        save_csv=args.save_csv, save_plot=args.save_plot
+        save_csv=args.save_csv
     )
 
 if __name__ == "__main__":
