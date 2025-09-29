@@ -5,7 +5,7 @@ import argparse
 from src.models import load_resnet_model
 from src import config
 from src.utils import preprocess_image, get_class_names
-from src.explanations.grad_cam import plot_grad_cam_heatmap  # our function
+from src.explanations import plot_grad_cam_heatmap
 
 
 def predict(model, image_tensor, class_names, device="cuda"):
