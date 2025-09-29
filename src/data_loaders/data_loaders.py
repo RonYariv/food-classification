@@ -1,6 +1,6 @@
 import os
 from torch.utils.data import DataLoader
-from torchvision import datasets, transforms
+from torchvision import datasets
 from src.utils import get_transform
 
 

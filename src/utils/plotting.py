@@ -65,7 +65,6 @@ def plot_top_confusions(cm: np.ndarray, class_names: list, top_k: int = 20):
 
     print(f"Saved confusion plot to {config.REPORTS_DIR}")
 
-
 def plot_metrics_table(df_metrics: pd.DataFrame):
     """
     Plot a table of metrics (accuracy, precision, recall, F1).
