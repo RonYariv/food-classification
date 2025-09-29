@@ -7,7 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from src.data_loaders import get_dataloaders
 from src.models import load_resnet_model
-from src.utils import compute_accuracy, compute_batch_metrics, plot_training_curves
+from src.utils import compute_accuracy, plot_training_curves
 from src import config
 
 
@@ -45,15 +45,29 @@ def validate(model, loader, criterion, device, epoch, writer):
 
     with torch.no_grad():
         for inputs, labels in loader:
-            loss, top1, top5, preds = compute_batch_metrics(model, inputs, labels, criterion, device)
-            correct += (top1 / 100.0) * labels.size(0)
+            inputs, labels = inputs.to(device), labels.to(device)
+
+            # Forward
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+
+            # Update loss
+            running_loss += loss.item() * inputs.size(0)
+
+            # Predictions
+            _, preds = outputs.max(1)
+            correct += (preds == labels).sum().item()
             total += labels.size(0)
 
-    epoch_loss = running_loss / len(loader)
+    # Average loss and accuracy
+    epoch_loss = running_loss / total
     epoch_acc = 100.0 * correct / total
+
+    # Logging
     writer.add_scalar("Val/Loss", epoch_loss, epoch)
     writer.add_scalar("Val/Accuracy", epoch_acc, epoch)
     print(f"Validation | Loss: {epoch_loss:.4f} | Acc: {epoch_acc:.2f}%")
+
     return epoch_loss, epoch_acc
 
 
@@ -110,9 +124,9 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train food classifier")
     parser.add_argument("--batch_size", type=int, default=32)
-    parser.add_argument("--epochs", type=int, default=10)
+    parser.add_argument("--epochs", type=int, default=5)
     parser.add_argument("--lr", type=float, default=1e-4)
-    parser.add_argument("--num_workers", type=int, default=8)
+    parser.add_argument("--num_workers", type=int, default=2)
 
     args = parser.parse_args()
     main(args)
