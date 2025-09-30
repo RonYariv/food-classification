@@ -15,13 +15,6 @@ def compute_accuracy(outputs, labels, topk=(1,5)):
         res.append(correct[:k].reshape(-1).float().sum(0).item() / batch_size * 100.0)
     return res  # [top1, top5]
 
-def compute_batch_metrics(model, inputs, labels, criterion, device):
-    inputs, labels = inputs.to(device), labels.to(device)
-    outputs = model(inputs)
-    loss = criterion(outputs, labels)
-    top1, top5 = compute_accuracy(outputs, labels)
-    _, preds = outputs.topk(1, dim=1)
-    return loss, top1, top5, preds
 
 def get_transform():
     val_test_transform = transforms.Compose([

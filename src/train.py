@@ -81,7 +81,7 @@ def main(args):
     )
 
     # Load model
-    model = load_resnet_model(18, num_classes,checkpoint_path=None, device=device)
+    model = load_resnet_model(config.RESNET_DEPTH, num_classes,checkpoint_path=None, device=device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(
