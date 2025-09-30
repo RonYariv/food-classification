@@ -45,7 +45,7 @@ def evaluate(
     )
 
     # Convert to DataFrame
-    df_metrics = (pd.DataFrame(report).transpose())
+    df_metrics = pd.DataFrame(report).transpose()
     df_metrics = df_metrics.iloc[:-3]  # remove 'accuracy', 'macro avg', 'weighted avg'
     df_metrics = df_metrics.drop(
         columns=["support"], errors="ignore"
