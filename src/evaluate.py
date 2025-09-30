@@ -14,7 +14,8 @@ def evaluate(
     model, loader, criterion, device, class_names=None, save_csv="metrics.csv"
 ):
     """
-    Evaluate model on a dataset, compute per-class metrics, save CSV, and plot table sorted by F1.
+    Evaluate model on a dataset, compute per-class metrics,
+    save CSV, and plot table sorted by F1.
     """
     model.eval()
     all_labels = []
@@ -44,7 +45,7 @@ def evaluate(
     )
 
     # Convert to DataFrame
-    df_metrics = pd.DataFrame(report).transpose()
+    df_metrics = (pd.DataFrame(report).transpose())
     df_metrics = df_metrics.iloc[:-3]  # remove 'accuracy', 'macro avg', 'weighted avg'
     df_metrics = df_metrics.drop(
         columns=["support"], errors="ignore"
