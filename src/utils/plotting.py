@@ -50,7 +50,9 @@ def plot_top_confusions(cm: np.ndarray, class_names: list, top_k: int = 20):
         plt.barh(i, count, color=colors[i % len(colors)])
 
     # Set y-axis labels as "True → Predicted"
-    plt.yticks(range(len(confusions)), [f"{t} → {p}" for t, p in zip(true_labels, pred_labels)])
+    plt.yticks(
+        range(len(confusions)), [f"{t} → {p}" for t, p in zip(true_labels, pred_labels)]
+    )
     plt.xlabel("Count")
     plt.title(f"Top {len(confusions)} Confusions")
     plt.gca().invert_yaxis()  # highest confusion on top
@@ -65,18 +67,19 @@ def plot_top_confusions(cm: np.ndarray, class_names: list, top_k: int = 20):
 
     print(f"Saved confusion plot to {config.REPORTS_DIR}")
 
+
 def plot_metrics_table(df_metrics: pd.DataFrame):
     """
     Plot a table of metrics (accuracy, precision, recall, F1).
     """
-    fig, ax = plt.subplots(figsize=(12, max(6, int(len(df_metrics)*0.3))))
+    fig, ax = plt.subplots(figsize=(12, max(6, int(len(df_metrics) * 0.3))))
     ax.axis("off")
 
     table = ax.table(
         cellText=df_metrics.round(3).values,
         colLabels=df_metrics.columns,
         cellLoc="center",
-        loc="center"
+        loc="center",
     )
     table.auto_set_font_size(False)
     table.set_fontsize(10)
@@ -85,6 +88,7 @@ def plot_metrics_table(df_metrics: pd.DataFrame):
     plt.savefig(f"{config.REPORTS_DIR}/metrics_table.png")
     plt.close()
     print(f"Saved metrics table plot to {config.REPORTS_DIR}")
+
 
 def plot_training_curves(train_losses, val_losses, train_accs, val_accs):
     os.makedirs(config.REPORTS_DIR, exist_ok=True)

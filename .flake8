@@ -1,0 +1,21 @@
+[flake8]
+# Maximum line length (matches Black default if you use --line-length 100)
+max-line-length = 100
+
+# Ignore some warnings that conflict with Black
+extend-ignore = E203, W503
+
+# Exclude files/folders that shouldn't be linted
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    py_env,
+    *.pyc
+
+# Per-file ignores (useful for __init__.py re-exports)
+per-file-ignores =
+    # ignore "imported but unused" in __init__.py (F401)
+    src/*/__init__.py: F401

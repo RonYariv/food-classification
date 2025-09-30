@@ -13,4 +13,3 @@ REPORTS_DIR = "reports"
 
 # Inference images dir
 INFERENCE_IMAGES_DIR = "inference_images"
-

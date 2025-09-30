@@ -81,14 +81,12 @@ def main(args):
     )
 
     # Load model
-    model = load_resnet_model(config.RESNET_DEPTH, num_classes,checkpoint_path=None, device=device)
+    model = load_resnet_model(
+        config.RESNET_DEPTH, num_classes, checkpoint_path=None, device=device
+    )
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(
-        model.parameters(),
-        lr=args.lr,
-        weight_decay=1e-4
-    )
+    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
     best_acc = 0.0
     os.makedirs(config.CHECKPOINT_DIR, exist_ok=True)
 
@@ -96,10 +94,14 @@ def main(args):
     train_accs, val_accs = [], []
 
     for epoch in range(args.epochs):
-        epoch+=1
+        epoch += 1
         print(f"\n--- Epoch {epoch}/{args.epochs} ---")
-        train_loss, train_acc = train_one_epoch(model, train_loader, criterion, optimizer, device, epoch, writer)
-        val_loss, val_acc = validate(model, val_loader, criterion, device, epoch, writer)
+        train_loss, train_acc = train_one_epoch(
+            model, train_loader, criterion, optimizer, device, epoch, writer
+        )
+        val_loss, val_acc = validate(
+            model, val_loader, criterion, device, epoch, writer
+        )
         train_losses.append(train_loss)
         train_accs.append(train_acc)
         val_losses.append(val_loss)
@@ -114,14 +116,17 @@ def main(args):
 
     # Final evaluation on TEST set using the best model ---
     print("\n=== Final Evaluation on Test Set ===")
-    model.load_state_dict(torch.load(os.path.join(config.CHECKPOINT_DIR, "best_model.pth")))
-    test_loss, test_acc = validate(model, test_loader, criterion, device, args.epochs, writer)
+    model.load_state_dict(
+        torch.load(os.path.join(config.CHECKPOINT_DIR, "best_model.pth"))
+    )
+    test_loss, test_acc = validate(
+        model, test_loader, criterion, device, args.epochs, writer
+    )
     print(f"Test Accuracy: {test_acc:.2f}%")
 
     plot_training_curves(train_losses, val_losses, train_accs, val_accs)
 
     writer.close()
-
 
 
 if __name__ == "__main__":
