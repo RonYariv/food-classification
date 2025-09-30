@@ -9,7 +9,10 @@ from src.models import load_resnet_model
 from src.utils import plot_metrics_table, plot_top_confusions
 from src import config
 
-def evaluate(model, loader, criterion, device, class_names=None, save_csv="metrics.csv"):
+
+def evaluate(
+    model, loader, criterion, device, class_names=None, save_csv="metrics.csv"
+):
     """
     Evaluate model on a dataset, compute per-class metrics, save CSV, and plot table sorted by F1.
     """
@@ -37,14 +40,20 @@ def evaluate(model, loader, criterion, device, class_names=None, save_csv="metri
         all_preds,
         target_names=class_names,
         zero_division=0,
-        output_dict=True
+        output_dict=True,
     )
 
     # Convert to DataFrame
     df_metrics = pd.DataFrame(report).transpose()
     df_metrics = df_metrics.iloc[:-3]  # remove 'accuracy', 'macro avg', 'weighted avg'
-    df_metrics = df_metrics.drop(columns=["support"], errors="ignore") # remove 'support'
-    df_metrics = df_metrics.sort_values(by="f1-score", ascending=False).reset_index().rename(columns={"index": "Class"})
+    df_metrics = df_metrics.drop(
+        columns=["support"], errors="ignore"
+    )  # remove 'support'
+    df_metrics = (
+        df_metrics.sort_values(by="f1-score", ascending=False)
+        .reset_index()
+        .rename(columns={"index": "Class"})
+    )
 
     # Save CSV
     df_metrics.to_csv(save_csv, index=False)
@@ -58,10 +67,13 @@ def evaluate(model, loader, criterion, device, class_names=None, save_csv="metri
     plot_top_confusions(cm, class_names, top_k=20)
 
     # Overall accuracy
-    overall_acc = sum([p == l for p, l in zip(all_preds, all_labels)]) / len(all_labels) * 100
+    overall_acc = (
+        sum([p == l for p, l in zip(all_preds, all_labels)]) / len(all_labels) * 100
+    )
     print(f"Validation Loss: {val_loss:.4f} | Overall Accuracy: {overall_acc:.2f}%")
 
     return val_loss, overall_acc, df_metrics
+
 
 def main(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -72,20 +84,32 @@ def main(args):
     )
 
     # Load model
-    model = load_resnet_model(config.RESNET_DEPTH, num_classes, checkpoint_path=args.checkpoint, device=device)
+    model = load_resnet_model(
+        config.RESNET_DEPTH, num_classes, checkpoint_path=args.checkpoint, device=device
+    )
 
     criterion = nn.CrossEntropyLoss()
     val_loss, overall_acc, df_metrics = evaluate(
-        model, test_loader, criterion, device, class_names,
-        save_csv=args.save_csv
+        model, test_loader, criterion, device, class_names, save_csv=args.save_csv
     )
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate food classifier")
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--num_workers", type=int, default=4)
-    parser.add_argument("--checkpoint", type=str, default=f"{config.CHECKPOINT_DIR}/best_model.pth", help="Path to model checkpoint")
-    parser.add_argument("--save_csv", type=str, default=f"{config.REPORTS_DIR}/metrics.csv", help="CSV file to save per-class metrics")
+    parser.add_argument(
+        "--checkpoint",
+        type=str,
+        default=f"{config.CHECKPOINT_DIR}/best_model.pth",
+        help="Path to model checkpoint",
+    )
+    parser.add_argument(
+        "--save_csv",
+        type=str,
+        default=f"{config.REPORTS_DIR}/metrics.csv",
+        help="CSV file to save per-class metrics",
+    )
 
     args = parser.parse_args()
     main(args)

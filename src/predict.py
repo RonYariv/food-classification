@@ -35,7 +35,7 @@ def main(args):
         depth=config.RESNET_DEPTH,
         num_classes=num_classes,
         checkpoint_path=args.checkpoint,
-        device=device
+        device=device,
     )
 
     # Collect all image paths
@@ -54,12 +54,16 @@ def main(args):
 
     for img_path in image_paths:
         image_tensor = preprocess_image(img_path)
-        top_class, top_prob, top_idx = predict(model, image_tensor, class_names, device=device)
-        results.append({
-            "image": os.path.basename(img_path),
-            "prediction": top_class,
-            "probability": top_prob
-        })
+        top_class, top_prob, top_idx = predict(
+            model, image_tensor, class_names, device=device
+        )
+        results.append(
+            {
+                "image": os.path.basename(img_path),
+                "prediction": top_class,
+                "probability": top_prob,
+            }
+        )
         print(f"Processed {img_path}: {top_class} ({top_prob * 100:.2f}%)")
 
         if args.explain:
@@ -68,16 +72,35 @@ def main(args):
             target_layers = [model.layer4[-1]]
             plot_grad_cam_heatmap(model, target_layers, img_path)
 
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Predict multiple images using trained model")
-    parser.add_argument("--checkpoint", type=str, default=f"{config.CHECKPOINT_DIR}/best_model.pth",
-                        help="Path to model checkpoint")
-    parser.add_argument("--image-dir", type=str, default="inference_images",
-                        help="Path to directory containing images")
-    parser.add_argument("--explain",type=bool, default=False,
-                        help="Generate Grad-CAM heatmaps for predictions")
-    parser.add_argument("--gradcam-dir", type=str, default=f"{config.INFERENCE_IMAGES_DIR}/explanations",
-                        help="Directory to save Grad-CAM heatmaps")
+    parser = argparse.ArgumentParser(
+        description="Predict multiple images using trained model"
+    )
+    parser.add_argument(
+        "--checkpoint",
+        type=str,
+        default=f"{config.CHECKPOINT_DIR}/best_model.pth",
+        help="Path to model checkpoint",
+    )
+    parser.add_argument(
+        "--image-dir",
+        type=str,
+        default="inference_images",
+        help="Path to directory containing images",
+    )
+    parser.add_argument(
+        "--explain",
+        type=bool,
+        default=False,
+        help="Generate Grad-CAM heatmaps for predictions",
+    )
+    parser.add_argument(
+        "--gradcam-dir",
+        type=str,
+        default=f"{config.INFERENCE_IMAGES_DIR}/explanations",
+        help="Directory to save Grad-CAM heatmaps",
+    )
 
     args = parser.parse_args()
     main(args)

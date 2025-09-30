@@ -3,7 +3,9 @@ import torchvision.models as models
 import os
 
 
-def load_resnet_model(depth: int, num_classes: int,checkpoint_path=None, device: str = "cuda"):
+def load_resnet_model(
+    depth: int, num_classes: int, checkpoint_path=None, device: str = "cuda"
+):
     """
     Load a ResNet model of configurable depth.
     """
@@ -15,7 +17,9 @@ def load_resnet_model(depth: int, num_classes: int,checkpoint_path=None, device:
     }
 
     if depth not in resnet_map:
-        raise ValueError(f"Unsupported ResNet depth: {depth}. Choose from {list(resnet_map.keys())}")
+        raise ValueError(
+            f"Unsupported ResNet depth: {depth}. Choose from {list(resnet_map.keys())}"
+        )
 
     # Load pretrained backbone
     resnet_func, weights_enum = resnet_map[depth]
