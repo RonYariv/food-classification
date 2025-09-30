@@ -2,7 +2,7 @@ import argparse
 import torch
 import torch.nn as nn
 import pandas as pd
-from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix
 
 from src.data_loaders import get_dataloaders
 from src.models import load_resnet_model
@@ -32,30 +32,19 @@ def evaluate(model, loader, criterion, device, class_names=None, save_csv="metri
     val_loss = running_loss / len(loader)
 
     # Compute metrics per class
-    metrics = {"Class": [], "Accuracy": [], "Precision": [], "Recall": [], "F1": []}
+    report = classification_report(
+        all_labels,
+        all_preds,
+        target_names=class_names,
+        zero_division=0,
+        output_dict=True
+    )
 
-    for i, cls in enumerate(class_names):
-        # Select only samples belonging to this class
-        cls_indices = [j for j, label in enumerate(all_labels) if label == i]
-        if not cls_indices:  # skip if no samples of this class
-            continue
-
-        cls_labels = [all_labels[j] for j in cls_indices]
-        cls_preds  = [all_preds[j] for j in cls_indices]
-
-        acc = sum([p == l for p, l in zip(cls_preds, cls_labels)]) / len(cls_labels) * 100
-        prec = precision_score(cls_labels, cls_preds, labels=[i], average="macro", zero_division=0)
-        rec  = recall_score(cls_labels, cls_preds, labels=[i], average="macro", zero_division=0)
-        f1   = f1_score(cls_labels, cls_preds, labels=[i], average="macro", zero_division=0)
-
-        metrics["Class"].append(cls)
-        metrics["Accuracy"].append(acc)
-        metrics["Precision"].append(prec)
-        metrics["Recall"].append(rec)
-        metrics["F1"].append(f1)
-
-    df_metrics = pd.DataFrame(metrics)
-    df_metrics = df_metrics.sort_values(by="F1", ascending=False).reset_index(drop=True)
+    # Convert to DataFrame
+    df_metrics = pd.DataFrame(report).transpose()
+    df_metrics = df_metrics.iloc[:-3]  # remove 'accuracy', 'macro avg', 'weighted avg'
+    df_metrics = df_metrics.drop(columns=["support"], errors="ignore") # remove 'support'
+    df_metrics = df_metrics.sort_values(by="f1-score", ascending=False).reset_index().rename(columns={"index": "Class"})
 
     # Save CSV
     df_metrics.to_csv(save_csv, index=False)

@@ -84,8 +84,11 @@ def main(args):
     model = load_resnet_model(18, num_classes,checkpoint_path=None, device=device)
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
-
+    optimizer = optim.Adam(
+        model.parameters(),
+        lr=args.lr,
+        weight_decay=1e-4
+    )
     best_acc = 0.0
     os.makedirs(config.CHECKPOINT_DIR, exist_ok=True)
 

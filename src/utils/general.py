@@ -24,7 +24,7 @@ def compute_batch_metrics(model, inputs, labels, criterion, device):
     return loss, top1, top5, preds
 
 def get_transform():
-    transform = transforms.Compose([
+    val_test_transform = transforms.Compose([
         transforms.Resize(256),  # keep aspect ratio
         transforms.CenterCrop(224),  # crop to 224x224
         transforms.ToTensor(),  # convert to tensor [C,H,W] and scale to [0,1]
@@ -33,12 +33,21 @@ def get_transform():
             std=[0.229, 0.224, 0.225]
         )
     ])
-    return transform
+    train_transform = transforms.Compose([
+        transforms.RandomResizedCrop(224),  # random zooms/crops
+        transforms.RandomHorizontalFlip(),  # simulate left/right variations
+        transforms.ColorJitter(0.2, 0.2, 0.2, 0.1),  # brightness/contrast/saturation/hue
+        transforms.RandomRotation(15),  # slight angle changes
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225])
+    ])
+    return train_transform, val_test_transform
 
 
 def preprocess_image(image_path):
     """Load and preprocess a single image for model prediction."""
-    transform = get_transform()
+    _, transform = get_transform()
     image = Image.open(image_path).convert("RGB")
     return transform(image).unsqueeze(0)  # add batch dimension
 
