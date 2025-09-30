@@ -15,3 +15,6 @@ runs
 checkpoints/*
 # But keep this file
 !checkpoints/put_models_here.txt
+
+# Virtual env
+py_env/
