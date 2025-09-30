@@ -1,9 +1,5 @@
 # 🍔 Food Classifier
 
-![Python](https://img.shields.io/badge/python-3.9%2B-blue)
-![PyTorch](https://img.shields.io/badge/pytorch-1.14%2B-orange)
-![GitHub Actions](https://img.shields.io/badge/CI-CD-GitHub%20Actions-brightgreen)
-
 ---
 
 ## Overview
