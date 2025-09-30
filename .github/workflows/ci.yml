@@ -41,4 +41,5 @@ jobs:
       # 5. Run unit tests
       - name: Run tests
         run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
           pytest tests/ --maxfail=1 --disable-warnings -q
