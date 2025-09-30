@@ -63,13 +63,10 @@ def main(args):
         print(f"Processed {img_path}: {top_class} ({top_prob * 100:.2f}%)")
 
         if args.explain:
-            output_path = os.path.join(args.gradcam_dir, f"{os.path.basename(img_path)}_gradcam.png")
-            plot_grad_cam_heatmap(
-                img_path=img_path,
-                output_path=output_path,
-                checkpoint_path=args.checkpoint,
-                target_class=top_idx
-            )
+            model.eval()
+            # Target layer for ResNet (last conv layer)
+            target_layers = [model.layer4[-1]]
+            plot_grad_cam_heatmap(model, target_layers, img_path)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Predict multiple images using trained model")

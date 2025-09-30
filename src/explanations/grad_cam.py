@@ -1,48 +1,42 @@
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
-from pytorch_grad_cam import GradCAM
-from pytorch_grad_cam.utils.image import show_cam_on_image, preprocess_image
-from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 from PIL import Image
+from torchvision import transforms
+from pytorch_grad_cam import GradCAM
+from pytorch_grad_cam.utils.image import show_cam_on_image
 
-from src.models import load_resnet_model
-from src.utils import get_class_names, preprocess_image
-import src.config as config
 
-
-def plot_grad_cam_heatmap(img_path: str, output_path: str, checkpoint_path: str, target_class: int = None):
-    """Generate and save a Grad-CAM heatmap for an input image."""
-    # Load model
-    classes_num = len(get_class_names())
-    model = load_resnet_model(config.RESNET_DEPTH, classes_num, checkpoint_path=checkpoint_path)
-    model.eval()
-
-    # Load original image for visualization
+def plot_grad_cam_heatmap(model, target_layers, img_path):
+    """Generates and displays a Grad-CAM heatmap overlayed on the original image."""
+    # Load image
     img = Image.open(img_path).convert("RGB")
-    rgb_img = np.array(img).astype(np.float32) / 255.0  # (H,W,3), normalized 0-1
+    rgb_img = np.array(img).astype(np.float32) / 255.0  # Original size normalized [0,1]
 
-    input_tensor = preprocess_image(img_path)
+    # Preprocess for model
+    transform = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225]),
+    ])
+    input_tensor = transform(img).unsqueeze(0)  # Add batch dimension
 
-    # Decide target class
-    if target_class is None:
-        with torch.no_grad():
-            outputs = model(input_tensor)
-            target_class = int(outputs.argmax(dim=1).cpu().numpy()[0])
+    # Grad-CAM
+    cam = GradCAM(model=model, target_layers=target_layers)
+    grayscale_cam = cam(input_tensor=input_tensor, targets=None)  # shape: [1,224,224]
+    grayscale_cam = grayscale_cam[0]
 
-    # Pick target layer (last conv block for ResNet)
-    target_layer = model.layer4[-1]
+    # Resize CAM back to original image size using PIL
+    cam_pil = Image.fromarray((grayscale_cam * 255).astype(np.uint8))
+    cam_resized = cam_pil.resize((rgb_img.shape[1], rgb_img.shape[0]), Image.BILINEAR)
+    grayscale_cam_resized = np.array(cam_resized).astype(np.float32) / 255.0
 
-    # Create Grad-CAM object
-    cam = GradCAM(model=model, target_layers=[target_layer], use_cuda=torch.cuda.is_available())
+    # Overlay heatmap
+    visualization = show_cam_on_image(rgb_img, grayscale_cam_resized, use_rgb=True)
 
-    # Run CAM
-    grayscale_cam = cam(input_tensor=input_tensor, targets=[ClassifierOutputTarget(target_class)])
-    grayscale_cam = grayscale_cam[0, :]  # (H, W)
-
-    # Overlay heatmap on image
-    visualization = show_cam_on_image(rgb_img, grayscale_cam, use_rgb=True)
-
-    # Save as PNG
-    plt.imsave(output_path, visualization)
-    print(f"[Grad-CAM] Saved heatmap to {output_path}")
+    # Plot
+    plt.figure(figsize=(8, 8))
+    plt.imshow(visualization)
+    plt.axis("off")
+    plt.show()
