@@ -7,7 +7,7 @@ from src import config
 class_names = get_class_names()
 NUM_CLASSES = len(class_names)
 MODEL_PATH = f"{config.CHECKPOINT_DIR}/best_model.pth"
-model = load_resnet_model(config.RESNET_DEPTH, num_classes=NUM_CLASSES, checkpoint_path=MODEL_PATH)
+model = load_resnet_model(config.RESNET_DEPTH, num_classes=NUM_CLASSES, checkpoint_path=MODEL_PATH, device="cpu")
 model.eval()
 
 
