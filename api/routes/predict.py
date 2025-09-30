@@ -2,6 +2,7 @@ from fastapi import APIRouter, UploadFile, File
 from fastapi.responses import JSONResponse
 from api.services import predict_image
 from api.schemas import PredictResponse
+import os
 
 router = APIRouter()
 
@@ -23,3 +24,8 @@ async def predict(file: UploadFile = File(...)):
 
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
+
+    finally:
+        # Ensure temporary file is deleted
+        if os.path.exists(image_path):
+            os.remove(image_path)
