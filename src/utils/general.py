@@ -1,6 +1,9 @@
 from torchvision import transforms
 from PIL import Image
 import os
+
+from transformers.utils import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
+
 from src import config
 
 
@@ -24,8 +27,8 @@ def get_transform():
             transforms.CenterCrop(224),  # crop to 224x224
             transforms.ToTensor(),  # convert to tensor [C,H,W] and scale to [0,1]
             transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],  # pretrained ResNet normalization
-                std=[0.229, 0.224, 0.225],
+                mean=IMAGENET_DEFAULT_MEAN,
+                std=IMAGENET_DEFAULT_STD,
             ),
         ]
     )
@@ -38,7 +41,7 @@ def get_transform():
             ),  # brightness/contrast/saturation/hue
             transforms.RandomRotation(15),  # slight angle changes
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD),
         ]
     )
     return train_transform, val_test_transform
